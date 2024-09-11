@@ -1,13 +1,35 @@
+require("dotenv").config();
 const express = require("express");
+const morgan = require("morgan");
 const server = express();
-const ejs = require("ejs");
+const dbURL = process.env.MONGO_URL;
+const mongoose = require("mongoose");
 
-server.set("view engine" , "ejs");
+const userRoutes = require("./routes/user.routes");
+const productRoutes = require("./routes/product.routes");
+const cartRoutes = require("./routes/cart.routes");
+const orderRoutes = require("./routes/order.routes");
+
+server.use(morgan("dev"));
+server.use(express.json());
+server.use(express.urlencoded({ extended: true }));
 
 server.get("/", (req, res) => {
-    res.render('main')
-})
+    res.send("Welcome to my App");
+});
 
-server.listen(2002, () => {
-    console.log('server chalu che kam kar http://127.0.0.1:2002');
-})
+server.use("/api/user", userRoutes);
+server.use("/api/product", productRoutes);
+server.use("/api/cart", cartRoutes);
+server.use("/api/order", orderRoutes);
+
+server.listen(3003, () => {
+
+    // Database Connection
+    mongoose
+        .connect(dbURL)
+        .then(() => console.log("Database Connection Success...."))
+        .catch((err) => console.log(err));
+
+    console.log(`Server start at http://localhost:3003`);
+});
